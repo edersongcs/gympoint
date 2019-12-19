@@ -1,5 +1,6 @@
 // Feature for validation login
 import jwt from 'jsonwebtoken';
+import * as Yup from 'yup';
 
 import User from '../models/User';
 import authConfig from '../../config/auth';
@@ -7,6 +8,17 @@ import authConfig from '../../config/auth';
 class SessionController {
   // Create session
   async store(req, res) {
+    const schema = Yup.object().shape({
+      email: Yup.string()
+        .email()
+        .required(),
+      password: Yup.string().required(),
+    });
+
+    if (!(await schema.isValid(req.body))) {
+      return res.status(401).json({ error: 'Falha na validação. ' });
+    }
+
     // seleciona o email e senha fornecido pelo usuario
     const { email, password } = req.body;
 
